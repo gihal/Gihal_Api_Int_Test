@@ -5,16 +5,15 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tsb.auctionservice.service.ParamSortOption;
 import common.datetime.DateTimeParser;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
-import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
@@ -102,5 +101,25 @@ public class AuctionService {
             }
         }
         return list;
+    }
+
+    public Map<HttpStatus, String> createDraftListing(String itemJsonStr) throws ParseException {
+        Map<HttpStatus, String> response = new HashMap<>();
+        JSONParser parser = new JSONParser();
+        JSONObject jsonObject = (JSONObject) parser.parse(itemJsonStr);
+
+        final String draftUrl = "https://api.tmsandbox.co.nz/v1/Selling/Drafts.json";
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Authorization", "OAuth oauth_consumer_key=F5D8D8DD2E3930F1660717B47349A119,oauth_token=1D95711C9E300A787414D812BC60F6B2,oauth_signature_method=PLAINTEXT,oauth_version=1.0,oauth_signature=569B5F6E66386F57A99129DD34024778%26ADDAF845704EAD682F7963F01F6A80EF");
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+        HttpEntity<String> request = new HttpEntity<String>(jsonObject.toJSONString(), headers);
+
+        RestTemplate template = new RestTemplate();
+        ResponseEntity<String> rs = template.exchange(draftUrl, HttpMethod.POST, request, String.class);
+        response.put(rs.getStatusCode(), rs.getBody());
+
+        return response;
     }
 }
