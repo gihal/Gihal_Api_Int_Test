@@ -25,7 +25,6 @@ public class AuctionServiceApplication {
 
     @Bean
     public HttpEntity<String> getHttpEntity() {
-        System.out.println("DEBUG 1:"+new Date());
         HttpHeaders headers = new HttpHeaders();
         headers.add("Authorization", "OAuth oauth_consumer_key=F5D8D8DD2E3930F1660717B47349A119,oauth_token=1D95711C9E300A787414D812BC60F6B2,oauth_signature_method=PLAINTEXT,oauth_version=1.0,oauth_signature=569B5F6E66386F57A99129DD34024778%26ADDAF845704EAD682F7963F01F6A80EF");
         HttpEntity<String> httpEntity = new HttpEntity<>(headers);
@@ -34,7 +33,6 @@ public class AuctionServiceApplication {
 
     @Bean
     public HttpHeaders getHttpHeaders() {
-        System.out.println("DEBUG 2:" + new Date());
         HttpHeaders headers = new HttpHeaders();
         headers.add("Authorization", "OAuth oauth_consumer_key=F5D8D8DD2E3930F1660717B47349A119,oauth_token=1D95711C9E300A787414D812BC60F6B2,oauth_signature_method=PLAINTEXT,oauth_version=1.0,oauth_signature=569B5F6E66386F57A99129DD34024778%26ADDAF845704EAD682F7963F01F6A80EF");
         headers.setContentType(MediaType.APPLICATION_JSON);
