@@ -30,6 +30,12 @@ public class AuctionService {
         return exchange;
     }
 
+    /**
+     *
+     * @param url The url that use to request and get data from trademe api
+     * @return Returns a Iterable
+     * @throws JsonProcessingException Throws any JsonProcessingException when trying read the tree
+     */
     public Iterable<JsonNode> getListFromResponse(String url) throws JsonProcessingException {
         ResponseEntity<String> response = getResponse(url);
         ObjectMapper objectMapper = new ObjectMapper();
@@ -38,6 +44,14 @@ public class AuctionService {
         return iterable;
     }
 
+    /**
+     * Get no reserve auctions and sort by given sorting option
+     * @param url The url that use to request and get data from trademe api
+     * @param categoryName Category name interested
+     * @param sortOption Sorting option
+     * @return Returns a list of JsonNode that contains no reserve auctions
+     * @throws JsonProcessingException Throws any JsonProcessingException when trying to  get the list from response
+     */
     public List<JsonNode> getNoReserveTradeAuction(String url, String categoryName, String sortOption) throws JsonProcessingException {
         ObjectMapper objectMapper = new ObjectMapper();
 
@@ -78,6 +92,16 @@ public class AuctionService {
 
     }
 
+    /**
+     * Get expiring auctions before the given end date and sort by the given sorting option
+     *
+     * @param url          The url that use to request and get data from trademe api
+     * @param endTime      Auction end time
+     * @param categoryName Category name interested
+     * @param sortOption   Sorting option
+     * @return Returns a list of JsonNode that contains expiring auctions
+     * @throws JsonProcessingException Throws any JsonProcessingException when trying to  get the list from response
+     */
     public List<JsonNode> getExpiringAuctions(String url, Date endTime, String categoryName, String sortOption) throws JsonProcessingException {
         Iterable<JsonNode> iterable = getListFromResponse(url);
         List<JsonNode> list = StreamSupport
@@ -103,6 +127,13 @@ public class AuctionService {
         return list;
     }
 
+    /**
+     * Create a new listing
+     *
+     * @param itemJsonStr Json value of the item that is going to create
+     * @return Returns a map of http statuses
+     * @throws ParseException Throws when it can't parse the given json
+     */
     public Map<HttpStatus, String> createDraftListing(String itemJsonStr) throws ParseException {
         Map<HttpStatus, String> response = new HashMap<>();
         JSONParser parser = new JSONParser();
