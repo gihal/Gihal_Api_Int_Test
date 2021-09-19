@@ -53,13 +53,19 @@ public class AuctionService {
     /**
      * Get no reserve auctions and sort by given sorting option
      *
-     * @param url          The url that use to request and get data from trademe api
      * @param categoryName Category name interested
      * @param sortOption   Sorting option
      * @return Returns a list of JsonNode that contains no reserve auctions
      * @throws JsonProcessingException Throws any JsonProcessingException when trying to  get the list from response
      */
-    public List<JsonNode> getNoReserveTradeAuction(String url, String categoryName, String sortOption) throws JsonProcessingException {
+    public List<JsonNode> getNoReserveTradeAuction(String categoryName, String sortOption) throws JsonProcessingException {
+        final String url = "https://api.tmsandbox.co.nz/v1/Search/General.json?listed_as=Auctions";
+        /*if (categoryName != null && !categoryName.isEmpty()) {
+            url += "&category=" + categoryName;
+        }
+        if (sortOption != null && !sortOption.isEmpty()) {
+            url += "&sort_order=" + sortOption;
+        }*/
         ObjectMapper objectMapper = new ObjectMapper();
 
         Iterable<JsonNode> iterable = getListFromResponse(url);
@@ -102,14 +108,16 @@ public class AuctionService {
     /**
      * Get expiring auctions before the given end date and sort by the given sorting option
      *
-     * @param url          The url that use to request and get data from trademe api
+     * @param startTime    Auction stat time
      * @param endTime      Auction end time
      * @param categoryName Category name interested
      * @param sortOption   Sorting option
      * @return Returns a list of JsonNode that contains expiring auctions
      * @throws JsonProcessingException Throws any JsonProcessingException when trying to  get the list from response
      */
-    public List<JsonNode> getExpiringAuctions(String url, Date endTime, String categoryName, String sortOption) throws JsonProcessingException {
+    public List<JsonNode> getExpiringAuctions(Date startTime, Date endTime, String categoryName, String sortOption) throws JsonProcessingException {
+        String startTimeStr = DateTimeParser.formatDate(startTime);
+        String url = "https://api.tmsandbox.co.nz/v1/Search/General.json?listed_as=Auctions&date_from=" + startTimeStr;
         Iterable<JsonNode> iterable = getListFromResponse(url);
         List<JsonNode> list = StreamSupport
                 .stream(iterable.spliterator(), false)
@@ -203,8 +211,9 @@ public class AuctionService {
 
     /**
      * Get motors withing the given price and minimum engine size
-     * @param minEngineSize Minimum engine size interested
-     * @param priceMax Maximum price interested
+     *
+     * @param minEngineSize   Minimum engine size interested
+     * @param priceMax        Maximum price interested
      * @param preferredColour Preferred colour if any
      * @return Returns a Json string
      */

@@ -30,15 +30,8 @@ public class AuctionController {
     public ResponseEntity<List<JsonNode>> getAuctions(
             @RequestParam(name = "categoryName", required = false) final String categoryName,
             @RequestParam(name = "sortOption", required = false) final String sortOption) {
-        String url = "https://api.tmsandbox.co.nz/v1/Search/General.json?listed_as=Auctions";
-        /*if (categoryName != null && !categoryName.isEmpty()) {
-            url += "&category=" + categoryName;
-        }
-        if (sortOption != null && !sortOption.isEmpty()) {
-            url += "&sort_order=" + sortOption;
-        }*/
         try {
-            List<JsonNode> list = service.getNoReserveTradeAuction(url, categoryName, sortOption);
+            List<JsonNode> list = service.getNoReserveTradeAuction(categoryName, sortOption);
             return ResponseEntity.ok().body(list);
         } catch (JsonProcessingException jsonProcessingException) {
             jsonProcessingException.printStackTrace();
@@ -54,10 +47,8 @@ public class AuctionController {
             @RequestParam(name = "endTime") @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm") Date endTime,
             @RequestParam(name = "categoryName", required = false) String categoryName,
             @RequestParam(name = "sortOption", required = false) String sortOption) {
-        String startTimeStr = DateTimeParser.formatDate(startTime);
-        String url = "https://api.tmsandbox.co.nz/v1/Search/General.json?listed_as=Auctions&date_from=" + startTimeStr;
         try {
-            List<JsonNode> list = service.getExpiringAuctions(url, endTime, categoryName, sortOption);
+            List<JsonNode> list = service.getExpiringAuctions(startTime, endTime, categoryName, sortOption);
             return ResponseEntity.ok().body(list);
         } catch (JsonProcessingException e) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Error on processing data.");
