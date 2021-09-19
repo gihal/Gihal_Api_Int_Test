@@ -3,6 +3,7 @@ package com.tsb.auctionservice.controller;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.tsb.auctionservice.controller.service.AuctionService;
+import com.tsb.auctionservice.domain.ShippingOption;
 import common.datetime.DateTimeParser;
 import org.json.simple.parser.ParseException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -65,12 +66,11 @@ public class AuctionController {
     }
 
 
-    @PostMapping("/auction/item")
+    @PostMapping("/auction")
     public ResponseEntity<String> createDraftListing(@RequestBody String item) {
 
-        Map<HttpStatus, String> result = null;
         try {
-            result = service.createDraftListing(item);
+            Map<HttpStatus, String> result = service.createDraftListing(item);
             HttpStatus key = null;
             for (HttpStatus status : result.keySet()) {
                 key = status;
@@ -78,13 +78,31 @@ public class AuctionController {
                     return new ResponseEntity<>("Item not created", status);
                 }
             }
-            return new ResponseEntity<>(result.get(key), HttpStatus.OK);
+            return new ResponseEntity<>(result.get(key), HttpStatus.CREATED);
         } catch (ParseException e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid Json.");
         } catch (HttpServerErrorException e) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
         }
 
+    }
+
+    @PostMapping("auction/update")
+    public ResponseEntity<String> updateShippingOption(@RequestParam(name = "listingId") Long listingId,
+                                                       @RequestBody List<ShippingOption> shippingOptions) {
+        try {
+            Map<HttpStatus, String> result = service.updateShippingOption(listingId, shippingOptions);
+            HttpStatus key = null;
+            for (HttpStatus status : result.keySet()) {
+                key = status;
+                if (status.value() != HttpStatus.OK.value()) {
+                    return new ResponseEntity<>("Item not updates", status);
+                }
+            }
+            return new ResponseEntity<>(result.get(key), HttpStatus.OK);
+        } catch (ParseException e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid Json.");
+        }
     }
 
 }

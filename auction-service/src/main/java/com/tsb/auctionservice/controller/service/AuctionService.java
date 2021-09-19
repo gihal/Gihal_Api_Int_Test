@@ -3,8 +3,10 @@ package com.tsb.auctionservice.controller.service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.tsb.auctionservice.domain.ShippingOption;
 import com.tsb.auctionservice.service.ParamSortOption;
 import common.datetime.DateTimeParser;
+import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
@@ -13,12 +15,17 @@ import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import java.math.BigDecimal;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
 @Service
 public class AuctionService {
+
+    @Autowired
+    private HttpHeaders httpHeaders;
+
     @Autowired
     private HttpEntity<String> httpEntity;
 
@@ -31,7 +38,6 @@ public class AuctionService {
     }
 
     /**
-     *
      * @param url The url that use to request and get data from trademe api
      * @return Returns a Iterable
      * @throws JsonProcessingException Throws any JsonProcessingException when trying read the tree
@@ -46,9 +52,10 @@ public class AuctionService {
 
     /**
      * Get no reserve auctions and sort by given sorting option
-     * @param url The url that use to request and get data from trademe api
+     *
+     * @param url          The url that use to request and get data from trademe api
      * @param categoryName Category name interested
-     * @param sortOption Sorting option
+     * @param sortOption   Sorting option
      * @return Returns a list of JsonNode that contains no reserve auctions
      * @throws JsonProcessingException Throws any JsonProcessingException when trying to  get the list from response
      */
@@ -141,16 +148,66 @@ public class AuctionService {
 
         final String draftUrl = "https://api.tmsandbox.co.nz/v1/Selling/Drafts.json";
 
-        HttpHeaders headers = new HttpHeaders();
+        /*HttpHeaders headers = new HttpHeaders();
         headers.add("Authorization", "OAuth oauth_consumer_key=F5D8D8DD2E3930F1660717B47349A119,oauth_token=1D95711C9E300A787414D812BC60F6B2,oauth_signature_method=PLAINTEXT,oauth_version=1.0,oauth_signature=569B5F6E66386F57A99129DD34024778%26ADDAF845704EAD682F7963F01F6A80EF");
         headers.setContentType(MediaType.APPLICATION_JSON);
-        headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
-        HttpEntity<String> request = new HttpEntity<String>(jsonObject.toJSONString(), headers);
+        headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));*/
+        HttpEntity<String> request = new HttpEntity<String>(jsonObject.toJSONString(), httpHeaders);
 
         RestTemplate template = new RestTemplate();
         ResponseEntity<String> rs = template.exchange(draftUrl, HttpMethod.POST, request, String.class);
         response.put(rs.getStatusCode(), rs.getBody());
 
         return response;
+    }
+
+    /**
+     * Update the listing with the given shipping option and update shipping cost as free of the option is buy now
+     *
+     * @param listingID       Listing id that going to updated
+     * @param shippingOptions The list of shipping options
+     * @return Returns a map of http statuses
+     * @throws ParseException Throws any ParseException when trying to parse the response body
+     */
+    public Map<HttpStatus, String> updateShippingOption(Long listingID, List<ShippingOption> shippingOptions) throws ParseException {
+        Map<HttpStatus, String> httpResponse = new HashMap<>();
+
+        final String listingUrl = "https://api.tmsandbox.co.nz/v1/Selling/Listings/" + listingID + ".json";
+        ResponseEntity<String> response = getResponse(listingUrl);
+        JSONParser parser = new JSONParser();
+        JSONObject parse = (JSONObject) parser.parse(response.getBody());
+        JSONArray shippingOptionsArray = ((JSONArray) parse.get("ShippingOptions"));
+        if (shippingOptionsArray == null) {
+            shippingOptionsArray = new JSONArray();
+        }
+        for (ShippingOption shippingOption : shippingOptions) {
+            boolean existingOption = false;
+            for (int i = 0; i < shippingOptionsArray.size(); i++) {
+                JSONObject json = ((JSONObject) shippingOptionsArray.get(i));
+                if (json.get("Method").equals(shippingOption.getOptionName())) {
+                    json.put("Price", shippingOption.getShippingCost());
+                    existingOption = true;
+                    break;
+                }
+            }
+            if (!existingOption) {
+                shippingOptionsArray.add(shippingOption.getShippingOptionJson());
+            }
+        }
+
+
+        final String draftUrl = "https://api.tmsandbox.co.nz/v1/Selling/Edit.json";
+
+       /* HttpHeaders headers = new HttpHeaders();
+        headers.add("Authorization", "OAuth oauth_consumer_key=F5D8D8DD2E3930F1660717B47349A119,oauth_token=1D95711C9E300A787414D812BC60F6B2,oauth_signature_method=PLAINTEXT,oauth_version=1.0,oauth_signature=569B5F6E66386F57A99129DD34024778%26ADDAF845704EAD682F7963F01F6A80EF");
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));*/
+        HttpEntity<String> request = new HttpEntity<String>(parse.toJSONString(), httpHeaders);
+
+        RestTemplate template = new RestTemplate();
+        ResponseEntity<String> rs = template.exchange(draftUrl, HttpMethod.POST, request, String.class);
+        httpResponse.put(rs.getStatusCode(), rs.getBody());
+
+        return httpResponse;
     }
 }
