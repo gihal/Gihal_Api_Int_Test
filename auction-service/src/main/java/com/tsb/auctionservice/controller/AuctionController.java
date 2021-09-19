@@ -2,7 +2,7 @@ package com.tsb.auctionservice.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.tsb.auctionservice.controller.service.AuctionService;
+import com.tsb.auctionservice.service.AuctionService;
 import com.tsb.auctionservice.domain.ShippingOption;
 import common.datetime.DateTimeParser;
 import org.json.simple.parser.ParseException;

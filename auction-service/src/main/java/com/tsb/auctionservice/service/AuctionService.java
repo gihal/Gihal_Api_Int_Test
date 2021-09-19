@@ -1,4 +1,4 @@
-package com.tsb.auctionservice.controller.service;
+package com.tsb.auctionservice.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
