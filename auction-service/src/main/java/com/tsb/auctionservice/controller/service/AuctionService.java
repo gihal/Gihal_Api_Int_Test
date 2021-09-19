@@ -200,4 +200,16 @@ public class AuctionService {
 
         return httpResponse;
     }
+
+    /**
+     * Get motors withing the given price and minimum engine size
+     * @param minEngineSize Minimum engine size interested
+     * @param priceMax Maximum price interested
+     * @param preferredColour Preferred colour if any
+     * @return Returns a Json string
+     */
+    public String getMotorCars(Integer minEngineSize, BigDecimal priceMax, String preferredColour) {
+        final String url = "https://api.tmsandbox.co.nz/v1/Search/Motors/Used.json?engine_size_min=" + minEngineSize + "&price_max=" + priceMax + "&search_string=" + preferredColour;
+        return getResponse(url).getBody();
+    }
 }

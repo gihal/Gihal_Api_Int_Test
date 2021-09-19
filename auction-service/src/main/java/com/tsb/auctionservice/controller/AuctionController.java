@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -62,6 +63,20 @@ public class AuctionController {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Error on processing data.");
         } catch (HttpServerErrorException e) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
+        }
+    }
+
+    @GetMapping("/auction/motors")
+    public ResponseEntity<String> getSpeedCars(
+            @RequestParam(name = "minEngineSize") Integer minEngineSize,
+            @RequestParam(name = "priceMax") BigDecimal priceMax,
+            @RequestParam(name = "preferredColour", required = false) String preferredColour) {
+
+        try {
+            String motorCars = service.getMotorCars(minEngineSize, priceMax, preferredColour);
+            return ResponseEntity.ok().body(motorCars);
+        } catch (HttpServerErrorException e) {
+            throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE, e.getMessage());
         }
     }
 
