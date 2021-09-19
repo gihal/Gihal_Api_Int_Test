@@ -147,11 +147,6 @@ public class AuctionService {
         JSONObject jsonObject = (JSONObject) parser.parse(itemJsonStr);
 
         final String draftUrl = "https://api.tmsandbox.co.nz/v1/Selling/Drafts.json";
-
-        /*HttpHeaders headers = new HttpHeaders();
-        headers.add("Authorization", "OAuth oauth_consumer_key=F5D8D8DD2E3930F1660717B47349A119,oauth_token=1D95711C9E300A787414D812BC60F6B2,oauth_signature_method=PLAINTEXT,oauth_version=1.0,oauth_signature=569B5F6E66386F57A99129DD34024778%26ADDAF845704EAD682F7963F01F6A80EF");
-        headers.setContentType(MediaType.APPLICATION_JSON);
-        headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));*/
         HttpEntity<String> request = new HttpEntity<String>(jsonObject.toJSONString(), httpHeaders);
 
         RestTemplate template = new RestTemplate();
@@ -197,11 +192,6 @@ public class AuctionService {
 
 
         final String draftUrl = "https://api.tmsandbox.co.nz/v1/Selling/Edit.json";
-
-       /* HttpHeaders headers = new HttpHeaders();
-        headers.add("Authorization", "OAuth oauth_consumer_key=F5D8D8DD2E3930F1660717B47349A119,oauth_token=1D95711C9E300A787414D812BC60F6B2,oauth_signature_method=PLAINTEXT,oauth_version=1.0,oauth_signature=569B5F6E66386F57A99129DD34024778%26ADDAF845704EAD682F7963F01F6A80EF");
-        headers.setContentType(MediaType.APPLICATION_JSON);
-        headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));*/
         HttpEntity<String> request = new HttpEntity<String>(parse.toJSONString(), httpHeaders);
 
         RestTemplate template = new RestTemplate();
